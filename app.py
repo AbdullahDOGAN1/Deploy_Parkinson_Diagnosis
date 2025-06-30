@@ -6,11 +6,10 @@ import torch.nn as nn
 from torchvision import models, transforms
 import io
 import os
-import requests
-from tqdm import tqdm
+import gdown  # Yeni ve daha güçlü indirme kütüphanesi
 
 
-# --- Model ve Dönüşüm Fonksiyonları ---
+# --- Model ve Dönüşüm Fonksiyonları (Değişiklik Yok) ---
 
 @st.cache_resource
 def get_model_architecture():
@@ -30,52 +29,26 @@ def transform_image(image_bytes):
     return image_transform(image).unsqueeze(0)
 
 
-# --- Google Drive'dan Dosya İndirme Fonksiyonu ---
-def download_file_from_google_drive(id, destination):
-    URL = "https://docs.google.com/uc?export=download&confirm=1"
-    session = requests.Session()
-    response = session.get(URL, params={'id': id}, stream=True)
-    token = get_confirm_token(response)
-
-    if token:
-        params = {'id': id, 'confirm': token}
-        response = session.get(URL, params=params, stream=True)
-
-    total_size_in_bytes = int(response.headers.get('content-length', 0))
-    block_size = 1024
-
-    progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True, desc="Model İndiriliyor")
-    with open(destination, 'wb') as f:
-        for data in response.iter_content(block_size):
-            progress_bar.update(len(data))
-            f.write(data)
-    progress_bar.close()
-
-
-def get_confirm_token(response):
-    for key, value in response.cookies.items():
-        if key.startswith('download_warning'):
-            return value
-    return None
-
-
-# --- Modeli Yükleme Fonksiyonu (GÜNCELLENDİ) ---
+# --- Modeli Yükleme Fonksiyonu (GÜNCELLENDİ ve BASİTLEŞTİRİLDİ) ---
 @st.cache_resource
 def load_model():
     model_path = 'parkinson_resnet18_finetuned_BEST.pth'
 
-    # Google Drive Dosya ID'nizi buraya yapıştırın
-    file_id = '11jw23F_ANuxWQosIGnSy5pqjozGZF7qA'  # Örnek ID, kendi ID'nizle değiştirin
+    # --- ÖNEMLİ: Google Drive Dosya ID'nizi buraya yapıştırın ---
+    file_id = '11jw23F_ANuxWQosIGnSy5pqjozGZF7qA'  # Bu örnek ID'yi kendi ID'nizle değiştirin
+    # -----------------------------------------------------------
 
+    # Eğer model dosyası yerelde yoksa, gdown ile indir
     if not os.path.exists(model_path):
-        with st.spinner(f"'{model_path}' indiriliyor..."):
-            download_file_from_google_drive(file_id, model_path)
+        with st.spinner(f"Model dosyası indiriliyor... Bu işlem ilk çalıştırmada biraz zaman alabilir."):
+            # gdown, Google Drive linkini doğrudan kullanabilir
+            url = f'https://drive.google.com/uc?id={file_id}'
+            gdown.download(url, model_path, quiet=False)
             st.success("Model başarıyla indirildi!")
 
     model = get_model_architecture()
     try:
-        # --- HATA İÇİN DÜZELTME BURADA ---
-        # weights_only=False parametresini ekliyoruz
+        # weights_only=False parametresi hala önemli
         model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu'), weights_only=False))
         model.eval()
         return model
@@ -113,7 +86,6 @@ with st.sidebar:
     st.text("Abdullah [Soyadınız]")
 
 st.title("Derin Öğrenme ile Parkinson Hastalığı Tespiti")
-# ... (Arayüzün geri kalanı aynı)
 st.write(
     "Geliştirilen modeli test etmek için lütfen bir beyin MR görüntüsü yükleyin. "
     "Sistem, yüklediğiniz görüntüyü analiz ederek bir tahmin sunacaktır."
