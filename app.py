@@ -166,9 +166,7 @@ st.markdown("""
         font-size: 2.5rem;
         margin-bottom: 1rem;
         text-align: center;
-        background: linear-gradient(135deg, #273988, #424d93)
         -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
         background-clip: text;
     }
 
@@ -409,7 +407,7 @@ else:
             st.image(
                 uploaded_file,
                 caption='Analiz için yüklenen beyin MR görüntüsü',
-                use_column_width=True
+                use_container_width=True
             )
 
             # Görüntü bilgileri
