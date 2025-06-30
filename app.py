@@ -35,19 +35,27 @@ def load_model():
     file_id = '11jw23F_ANuxWQosIGnSy5pqjozGZF7qA'
 
     if not os.path.exists(model_path):
-        with st.spinner(f"Model dosyası indiriliyor... Bu işlem ilk çalıştırmada biraz zaman alabilir."):
-            url = f'https://drive.google.com/uc?id={file_id}'
-            gdown.download(url, model_path, quiet=False)
-            st.success("Model başarıyla indirildi!")
+        with st.spinner("Model dosyası indiriliyor..."):
+
+            import gdown
+            gdown.download(id=file_id, output=model_path, quiet=False)
+
+    # 🚦 Boyut kontrolü – indirme gerçekten başarılı mı?
+    if os.path.getsize(model_path) < 1_000_000:   # <1 MB => muhtemelen HTML
+        st.error("Model dosyası indirilemedi veya bozuk. "
+                 "Drive paylaşım izinlerini ve file_id değerini kontrol edin.")
+        return None
 
     model = get_model_architecture()
     try:
-        model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu'), weights_only=False))
+        state_dict = torch.load(model_path, map_location=torch.device('cpu'))
+        model.load_state_dict(state_dict)
         model.eval()
         return model
     except Exception as e:
         st.error(f"Model yüklenirken bir hata oluştu: {e}")
         return None
+
 
 
 # --- Profesyonel ve Şık Streamlit Arayüzü ---
