@@ -195,7 +195,6 @@ st.markdown("""
         color: #1a1a1a !important;
     }
 </style>
-
 """, unsafe_allow_html=True)
 
 # --- Kenar Çubuğu (Sidebar) ---
@@ -249,14 +248,14 @@ with st.sidebar:
             st.warning("⚠️ Model Dosyası Bulunamadı")
 
 # --- Ana Sayfa İçeriği ---
-st.markdown('<h1 class="main-title">🧠 NeuroAI Diagnostic Platform</h1>', unsafe_allow_html=True)
+st.title("🧠 NeuroAI Diagnostic Platform")
 st.markdown(
     """
     <div style='text-align: center; margin-bottom: 2rem;'>
-        <h3 style='color: #2c3e50; font-weight: 400; margin-top: -1rem;'>
+        <h3 style='color: #34495e; font-weight: 400; margin-top: -1rem;'>
             Yapay Zeka Destekli Parkinson Hastalığı Erken Teşhis Sistemi
         </h3>
-        <p style='font-size: 1.1rem; color: #2c3e50; max-width: 800px; margin: 0 auto; line-height: 1.6;'>
+        <p style='font-size: 1.1rem; color: #7f8c8d; max-width: 800px; margin: 0 auto; line-height: 1.6;'>
             İleri derin öğrenme algoritmaları kullanarak beyin MR görüntülerinden 
             Parkinson hastalığının nörolojik belirtilerini tespit eden klinik karar destek sistemi
         </p>
