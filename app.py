@@ -130,103 +130,72 @@ st.set_page_config(
 # --- Özel CSS Kodları ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-    /* Genel Stiller */
     .stApp {
-        font-family: 'Inter', sans-serif;
-        background-color: #f0f2f6 !important;
-        color: #333;
-        line-height: 1.6;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #1a1a1a;
     }
 
-    /* Başlıklar */
+    .main .block-container {
+        background: rgba(255, 255, 255, 0.97);
+        color: #1a1a1a;
+    }
+
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+    }
+
+    [data-testid="stSidebar"] h1, 
+    [data-testid="stSidebar"] h2, 
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] p, 
+    [data-testid="stSidebar"] li,
+    [data-testid="stSidebar"] .stMarkdown {
+        color: #ffffff !important;
+        font-weight: 600;
+    }
+
     h1, h2, h3, h4, h5, h6 {
-        color: #2c3e50 !important;
+        color: #1a1a1a;
+        text-shadow: none;
+    }
+
+    .result-card {
+        background: #ffffff;
+        border: 2px solid #d0d8ff;
+        color: #1a1a1a;
+    }
+
+    .stAlert {
+        background-color: #f8f9fa !important;
+        color: #212529 !important;
+    }
+
+    .stButton>button {
+        color: white !important;
         font-weight: 600 !important;
     }
 
-    /* Ana içerik alanı */
-    .main .block-container {
-        background-color: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        padding: 2rem;
-        margin-top: 1rem;
-        margin-bottom: 1rem;
+    [data-testid="stMetric"] {
+        background: #f4f6ff !important;
+        color: #1a1a1a !important;
     }
 
-    /* Kenar Çubuğu */
-    [data-testid="stSidebar"] {
-        background-color: #2c3e50 !important;
+    [data-testid="stMetricValue"], [data-testid="stMetricLabel"] {
+        color: #1a1a1a !important;
     }
 
-    [data-testid="stSidebar"] * {
+    /* Görsel analiz sonuç kutuları (Parkinson tespiti ve normal sonuç) */
+    .result-card strong {
         color: #ffffff !important;
     }
 
-    /* Sistem Hakkında Bilgi Kutusu */
-    [data-testid="stVerticalBlock"] > div:nth-child(2) > [data-testid="stVerticalBlock"] {
-        background-color: rgba(255,255,255,0.9) !important;
-        border-radius: 8px;
-        padding: 1rem;
-        margin: 0.5rem 0;
-    }
-
-    /* Metinler */
-    p, li, .stMarkdown, .stText {
-        color: #333 !important;
-        font-size: 1rem !important;
-    }
-
-    /* Kartlar ve Kutular */
-    .stAlert, .result-card, [data-testid="stMetric"] {
-        background-color: #ffffff !important;
-        border: 1px solid #e0e0e0 !important;
-        color: #333 !important;
-        border-radius: 8px;
-    }
-
-    /* Butonlar */
-    .stButton>button {
-        background-color: #4a6fa5 !important;
-        color: white !important;
-        border-radius: 8px;
-    }
-
-    /* Progress bar */
-    .stProgress > div > div > div {
-        background-color: #4a6fa5 !important;
-    }
-
-    /* Metrikler */
-    [data-testid="stMetricValue"] {
-        font-size: 1.5rem !important;
-        color: #2c3e50 !important;
-    }
-
-    [data-testid="stMetricLabel"] {
-        font-size: 1rem !important;
-        color: #555 !important;
-    }
-
-    /* Hizalama Düzeltmeleri */
+    /* Detaylı analiz bölümü yazıları */
     .stMarkdown {
-        padding: 0.25rem 0 !important;
-    }
-
-    .stImage {
-        text-align: center;
-    }
-
-    /* Sistem Hakkında Özel Stil */
-    div[data-testid="stVerticalBlock"] > div:nth-child(2) > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] {
-        background-color: rgba(255,255,255,0.9) !important;
-        padding: 1rem !important;
-        border-radius: 8px !important;
-        margin: 0.5rem 0 !important;
+        color: #1a1a1a !important;
     }
 </style>
+
 """, unsafe_allow_html=True)
 
 # --- Kenar Çubuğu (Sidebar) ---
@@ -280,14 +249,14 @@ with st.sidebar:
             st.warning("⚠️ Model Dosyası Bulunamadı")
 
 # --- Ana Sayfa İçeriği ---
-st.title("🧠 NeuroAI Diagnostic Platform")
+st.markdown('<h1 class="main-title">🧠 NeuroAI Diagnostic Platform</h1>', unsafe_allow_html=True)
 st.markdown(
     """
     <div style='text-align: center; margin-bottom: 2rem;'>
         <h3 style='color: #2c3e50; font-weight: 400; margin-top: -1rem;'>
             Yapay Zeka Destekli Parkinson Hastalığı Erken Teşhis Sistemi
         </h3>
-        <p style='font-size: 1.1rem; color: #555; max-width: 800px; margin: 0 auto; line-height: 1.6;'>
+        <p style='font-size: 1.1rem; color: #2c3e50; max-width: 800px; margin: 0 auto; line-height: 1.6;'>
             İleri derin öğrenme algoritmaları kullanarak beyin MR görüntülerinden 
             Parkinson hastalığının nörolojik belirtilerini tespit eden klinik karar destek sistemi
         </p>
@@ -303,9 +272,9 @@ model = load_model()
 if model is None:
     st.error("❌ **Model Yükleme Hatası**", icon="🚨")
     st.markdown("""
-    <div style='background: #ffebee; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #f44336; margin: 1rem 0;'>
-        <h4 style='color: #d32f2f; margin: 0;'>⚠️ Sistem Geçici Olarak Kullanılamıyor</h4>
-        <p style='color: #555; margin: 0.5rem 0 0 0;'>
+    <div style='background: linear-gradient(135deg, #ff6b6b, #feca57); padding: 1.5rem; border-radius: 15px; margin: 1rem 0;'>
+        <h4 style='color: white; margin: 0;'>⚠️ Sistem Geçici Olarak Kullanılamıyor</h4>
+        <p style='color: white; margin: 0.5rem 0 0 0;'>
             Nöral ağ modeli yüklenemiyor. Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin.
         </p>
     </div>
@@ -323,9 +292,9 @@ else:
 
     # Bilgilendirme paneli
     st.markdown("""
-    <div style='background: #e8f5e9; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #4caf50; margin: 1rem 0;'>
-        <h4 style='color: #2e7d32; margin: 0;'>📋 Analiz İçin Hazır</h4>
-        <p style='color: #555; margin: 0.5rem 0 0 0;'>
+    <div style='background: linear-gradient(135deg, #a8e6cf, #88d8c0); padding: 1.5rem; border-radius: 15px; margin: 1rem 0;'>
+        <h4 style='color: #2c3e50; margin: 0;'>📋 Analiz İçin Hazır</h4>
+        <p style='color: #2c3e50; margin: 0.5rem 0 0 0;'>
             Sistem aktif ve analiz için hazır durumda. Lütfen beyin MR görüntünüzü yükleyin.
         </p>
     </div>
@@ -340,9 +309,9 @@ else:
     if uploaded_file is None:
         # Örnek görüntü gösterimi
         st.markdown("""
-        <div style='text-align: center; padding: 2rem; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3; margin: 2rem 0;'>
-            <h3 style='color: #0d47a1; margin: 0;'>🎯 Analiz Bekleniyor</h3>
-            <p style='color: #555; margin: 1rem 0 0 0; font-size: 1.1rem;'>
+        <div style='text-align: center; padding: 3rem; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 20px; margin: 2rem 0;'>
+            <h3 style='color: white; margin: 0;'>🎯 Analiz Bekleniyor</h3>
+            <p style='color: rgba(255,255,255,0.9); margin: 1rem 0 0 0; font-size: 1.1rem;'>
                 Parkinson hastalığı teşhisi için beyin MR görüntünüzü yükleyin
             </p>
         </div>
@@ -412,15 +381,15 @@ else:
                         if prediction == 'Parkinson Hastalığı':
                             st.error(f"**🩺 Klinik Değerlendirme:** {prediction}", icon="⚠️")
                             st.markdown("""
-                            <div style='background: #ffebee; padding: 1rem; border-radius: 8px; border-left: 4px solid #f44336; margin: 1rem 0;'>
-                                <strong style='color: #d32f2f;'>⚠️ Dikkat Gerektiren Bulgular Tespit Edildi</strong>
+                            <div style='background: linear-gradient(135deg, #ff6b6b, #ee5a24); padding: 1rem; border-radius: 10px; margin: 1rem 0;'>
+                                <strong style='color: white;'>⚠️ Dikkat Gerektiren Bulgular Tespit Edildi</strong>
                             </div>
                             """, unsafe_allow_html=True)
                         else:
                             st.success(f"**🩺 Klinik Değerlendirme:** {prediction}", icon="✅")
                             st.markdown("""
-                            <div style='background: #e8f5e9; padding: 1rem; border-radius: 8px; border-left: 4px solid #4caf50; margin: 1rem 0;'>
-                                <strong style='color: #2e7d32;'>✅ Normal Nörolojik Bulgular</strong>
+                            <div style='background: linear-gradient(135deg, #55a3ff, #667eea); padding: 1rem; border-radius: 10px; margin: 1rem 0;'>
+                                <strong style='color: white;'>✅ Normal Nörolojik Bulgular</strong>
                             </div>
                             """, unsafe_allow_html=True)
 
