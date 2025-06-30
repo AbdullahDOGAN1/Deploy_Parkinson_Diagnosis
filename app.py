@@ -130,69 +130,129 @@ st.set_page_config(
 # --- Özel CSS Kodları ---
 st.markdown("""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    /* Genel Font ve Renkler */
     .stApp {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: #1a1a1a;
     }
 
+    /* Ana içerik alanı */
     .main .block-container {
-        background: rgba(255, 255, 255, 0.97);
-        color: #1a1a1a;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 3rem;
+        margin-top: 2rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
     }
 
+    /* Kenar Çubuğu */
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+        border-right: none;
     }
 
-    [data-testid="stSidebar"] h1, 
-    [data-testid="stSidebar"] h2, 
-    [data-testid="stSidebar"] h3,
-    [data-testid="stSidebar"] p, 
-    [data-testid="stSidebar"] li,
-    [data-testid="stSidebar"] .stMarkdown {
-        color: #ffffff !important;
+    [data-testid="stSidebar"] .css-1d391kg {
+        background: transparent;
+    }
+
+    /* Başlıklar */
+    h1 {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        text-align: center;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    h2, h3 {
+        color: #34495e;
         font-weight: 600;
     }
 
-    h1, h2, h3, h4, h5, h6 {
-        color: #1a1a1a;
-        text-shadow: none;
+    /* Dosya Yükleme Alanı */
+    [data-testid="stFileUploader"] {
+        border: 3px dashed #667eea;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        border-radius: 20px;
+        padding: 3rem;
+        text-align: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    [data-testid="stFileUploader"]:hover {
+        border-color: #764ba2;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    /* Analiz Sonucu Kartı */
     .result-card {
-        background: #ffffff;
-        border: 2px solid #d0d8ff;
-        color: #1a1a1a;
+        background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+        border: 2px solid #e1e5ff;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.15);
+        margin: 1rem 0;
     }
 
-    .stAlert {
-        background-color: #f8f9fa !important;
-        color: #212529 !important;
-    }
-
-    .stButton>button {
-        color: white !important;
-        font-weight: 600 !important;
-    }
-
+    /* Metrikler */
     [data-testid="stMetric"] {
-        background: #f4f6ff !important;
-        color: #1a1a1a !important;
+        background: linear-gradient(135deg, #ffffff, #f8f9ff);
+        padding: 1.5rem;
+        border-radius: 15px;
+        border: 1px solid #e1e5ff;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
     }
 
-    [data-testid="stMetricValue"], [data-testid="stMetricLabel"] {
-        color: #1a1a1a !important;
+    /* Butonlar */
+    .stButton>button {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-weight: 600;
+        padding: 0.75rem 2rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     }
 
-    /* Görsel analiz sonuç kutuları (Parkinson tespiti ve normal sonuç) */
-    .result-card strong {
-        color: #ffffff !important;
+    .stButton>button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
     }
 
-    /* Detaylı analiz bölümü yazıları */
-    .stMarkdown {
-        color: #1a1a1a !important;
+    /* Progress bar */
+    .stProgress .st-bo {
+        background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+
+    /* Info, Success, Error kutularının modern tasarımı */
+    .stAlert {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Sidebar içeriği */
+    .sidebar .stMarkdown {
+        color: #ecf0f1;
+    }
+
+    /* Divider */
+    hr {
+        border: none;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #667eea, transparent);
+        margin: 2rem 0;
     }
 </style>
 """, unsafe_allow_html=True)
