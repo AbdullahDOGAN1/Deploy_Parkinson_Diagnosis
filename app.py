@@ -173,7 +173,7 @@ st.markdown("""
     }
 
     h2, h3 {
-        color: #2c3e50; /* Daha koyu renk yapıldı */
+        color: #2c3e50;
         font-weight: 600;
     }
 
@@ -182,6 +182,13 @@ st.markdown("""
     [data-testid="stSidebar"] h2, 
     [data-testid="stSidebar"] h3 {
         color: #ecf0f1 !important;
+    }
+
+    /* Ana başlık için özel stil */
+    .main-title {
+        font-size: 2.5rem !important;
+        margin-bottom: 0.5rem !important;
+        color: #2c3e50 !important;
     }
 
     /* Dosya Yükleme Alanı */
@@ -218,6 +225,16 @@ st.markdown("""
         border-radius: 15px;
         border: 1px solid #e1e5ff;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Metrik değerleri */
+    [data-testid="stMetricValue"] {
+        font-size: 1.8rem !important;
+    }
+
+    /* Metrik etiketleri */
+    [data-testid="stMetricLabel"] {
+        font-size: 1.1rem !important;
     }
 
     /* Butonlar */
@@ -315,7 +332,7 @@ with st.sidebar:
             st.warning("⚠️ Model Dosyası Bulunamadı")
 
 # --- Ana Sayfa İçeriği ---
-st.title("🧠 NeuroAI Diagnostic Platform")
+st.markdown('<h1 class="main-title">🧠 NeuroAI Diagnostic Platform</h1>', unsafe_allow_html=True)
 st.markdown(
     """
     <div style='text-align: center; margin-bottom: 2rem;'>
