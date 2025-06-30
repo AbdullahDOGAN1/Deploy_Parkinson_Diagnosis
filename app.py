@@ -9,7 +9,7 @@ import os
 import gdown
 
 
-# --- Model ve Dönüşüm Fonksiyonları (Değişiklik Yok) ---
+# --- Model ve Dönüşüm Fonksiyonları ---
 
 @st.cache_resource
 def get_model_architecture():
@@ -32,24 +32,17 @@ def transform_image(image_bytes):
 @st.cache_resource
 def load_model():
     model_path = 'parkinson_resnet18_finetuned_BEST.pth'
-    file_id = '11jw23F_ANuxWQosIGnSy5pqjozGZF7qA'
+    file_id = '11jw23F_ANuxWQosIGnSy5pqjozGZF7qA'  # Sizin dosya ID'niz
 
     if not os.path.exists(model_path):
-        with st.spinner("Model dosyası indiriliyor..."):
-
-            import gdown
-            gdown.download(id=file_id, output=model_path, quiet=False)
-
-    # 🚦 Boyut kontrolü – indirme gerçekten başarılı mı?
-    if os.path.getsize(model_path) < 1_000_000:   # <1 MB => muhtemelen HTML
-        st.error("Model dosyası indirilemedi veya bozuk. "
-                 "Drive paylaşım izinlerini ve file_id değerini kontrol edin.")
-        return None
+        with st.spinner(f"Model dosyası indiriliyor... Bu işlem ilk çalıştırmada biraz zaman alabilir."):
+            url = f'https://drive.google.com/uc?id={file_id}'
+            gdown.download(url, model_path, quiet=False)
+            st.success("Model başarıyla indirildi!", icon="✅")
 
     model = get_model_architecture()
     try:
-        state_dict = torch.load(model_path, map_location=torch.device('cpu'))
-        model.load_state_dict(state_dict)
+        model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu'), weights_only=False))
         model.eval()
         return model
     except Exception as e:
@@ -57,11 +50,10 @@ def load_model():
         return None
 
 
-
-# --- Profesyonel ve Şık Streamlit Arayüzü ---
+# --- Profesyonel ve Zenginleştirilmiş Arayüz ---
 
 st.set_page_config(
-    page_title="AI Teşhis Asistanı",
+    page_title="AI Görüntü Analizi",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -70,54 +62,62 @@ st.set_page_config(
 # --- Özel CSS Kodları ---
 st.markdown("""
 <style>
-    /* Ana arkaplan */
+    /* Genel Font ve Renkler */
+    body {
+        font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+    }
     .stApp {
-        background-color: #111111;
-        color: #EAEAEA;
+        background-color: #0E1117;
+        color: #FAFAFA;
     }
-    /* Kenar çubuğu */
+    /* Kenar Çubuğu */
     [data-testid="stSidebar"] {
-        background-color: #1E1E1E;
-        border-right: 1px solid #2D2D2D;
+        background-color: #161B22;
+        border-right: 1px solid #30363D;
     }
-    /* Dosya yükleme alanı */
+    .st-emotion-cache-16txtl3 {
+        color: #FAFAFA;
+    }
+    /* Dosya Yükleme Alanı */
     [data-testid="stFileUploader"] {
-        border: 2px dashed #4A4A4A;
-        background-color: #2D2D2D;
+        border: 2px dashed #30363D;
+        background-color: rgba(48, 54, 61, 0.3);
         border-radius: 12px;
         transition: all 0.3s ease-in-out;
+        padding: 2rem;
     }
     [data-testid="stFileUploader"]:hover {
-        border-color: #00A67E;
-        box-shadow: 0 0 15px rgba(0, 166, 126, 0.3);
+        border-color: #58A6FF;
+        background-color: rgba(88, 166, 255, 0.1);
     }
-    /* Başarı ve Hata kutucukları */
-    [data-testid="stSuccess"], [data-testid="stError"] {
-        border-left: 6px solid;
+    /* Analiz Sonucu Kartı */
+    .result-card {
+        background-color: #161B22;
+        border: 1px solid #30363D;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    /* Butonlar ve metrikler */
+    .stButton>button {
         border-radius: 8px;
-        padding: 1.2rem;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        background-color: #262730;
     }
-    [data-testid="stSuccess"] {
-        border-left-color: #00A67E;
-    }
-    [data-testid="stError"] {
-        border-left-color: #FF4B4B;
+    [data-testid="stMetric"] {
+        background-color: transparent;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # --- Kenar Çubuğu (Sidebar) ---
 with st.sidebar:
-    st.title("AI Teşhis Asistanı")
+    st.title("Yapay Zekâ Analiz Sistemi")
     st.write("---")
     st.subheader("Proje Hakkında")
     st.info(
         "Bu web uygulaması, 2D beyin MR görüntülerinden Parkinson hastalığına dair "
-        "AI teşhis emarelerini analiz eden bir derin öğrenme modelini sunar."
+        "potansiyel biyobelirteçleri analiz eden bir derin öğrenme modelini sunar.",
+        icon="ℹ️"
     )
-
     st.subheader("Model Detayları")
     st.markdown(
         """
@@ -125,17 +125,16 @@ with st.sidebar:
         - **Test Başarısı:** **~%95** Genel Doğruluk
         """
     )
-
     st.write("---")
     st.subheader("Geliştirici")
     st.text("Abdullah Doğan")
     st.caption("© 2025 - Tüm Hakları Saklıdır.")
 
 # --- Ana Sayfa İçeriği ---
-st.title("Derin Öğrenme ile Parkinson Teşhis Analizi")
+st.title("Derin Öğrenme ile Görüntü Tabanlı Teşhis Analizi")
 st.write(
     "Geliştirilen modeli test etmek için lütfen bir beyin MR görüntüsü yükleyin. "
-    "Sistem, yüklediğiniz görüntüyü analiz ederek potansiyel AI teşhis emarelerini sunacaktır."
+    "Sistem, yüklediğiniz görüntüyü analiz ederek bir değerlendirme sunacaktır."
 )
 st.write("---")
 
@@ -146,12 +145,11 @@ if model is None:
 else:
     uploaded_file = st.file_uploader(
         "Analiz için bir MR görüntüsü seçin",
-        type=["jpg", "png", "jpeg"],
-        label_visibility="collapsed"
+        type=["jpg", "png", "jpeg"]
     )
 
     if uploaded_file is None:
-        st.info("Lütfen bir MR görüntüsü yükleyerek analizi başlatın.")
+        st.info("Lütfen bir görüntü yükleyerek analizi başlatın.", icon="☝️")
     else:
         col1, col2 = st.columns([2, 3])
 
@@ -160,40 +158,46 @@ else:
             st.image(uploaded_file, caption='Analiz edilecek MR görüntüsü', use_column_width=True)
 
         with col2:
-            st.subheader("AI Teşhis Emareleri")
-            with st.spinner('🤖 Model görüntüyü analiz ediyor...'):
-                image_bytes = uploaded_file.getvalue()
-                tensor = transform_image(image_bytes)
+            st.subheader("AI Analiz Raporu")
 
-                with torch.no_grad():
-                    outputs = model(tensor)
-                    probabilities = torch.nn.functional.softmax(outputs, dim=1)
-                    confidence, predicted_class = torch.max(probabilities, 1)
+            # Analiz kartını oluşturmak için bir container kullanıyoruz
+            with st.container():
+                st.markdown('<div class="result-card">', unsafe_allow_html=True)
+                with st.spinner('🤖 Model görüntüyü analiz ediyor...'):
+                    image_bytes = uploaded_file.getvalue()
+                    tensor = transform_image(image_bytes)
 
-            class_names = ['Sağlıklı (Non-PD)', 'Parkinson (PD)']
-            prediction = class_names[predicted_class.item()]
-            confidence_score = confidence.item()
+                    with torch.no_grad():
+                        outputs = model(tensor)
+                        probabilities = torch.nn.functional.softmax(outputs, dim=1)
+                        confidence, predicted_class = torch.max(probabilities, 1)
 
-            if prediction == 'Parkinson (PD)':
-                st.error(f"**Tespit Edilen Durum:** `{prediction}`")
-            else:
-                st.success(f"**Tespit Edilen Durum:** `{prediction}`")
+                class_names = ['Sağlıklı (Non-PD)', 'Parkinson (PD)']
+                prediction = class_names[predicted_class.item()]
+                confidence_score = confidence.item()
 
-            st.metric(label="Modelin Güven Skoru", value=f"{confidence_score * 100:.2f}%")
-            st.progress(confidence_score)
-
-            with st.expander("Sonuç Detayları"):
-                st.write(
-                    f"Model, yüklenen görüntüyü analiz ederek "
-                    f"**%{confidence_score * 100:.2f}** olasılıkla görüntünün **'{prediction}'** "
-                    f"sınıfına ait olduğunu tahmin etmiştir. "
-                )
                 if prediction == 'Parkinson (PD)':
-                    st.write(
-                        "Bu, görüntüde Parkinson hastalığı ile ilişkilendirilen sinirsel desenlerin tespit edildiği anlamına gelmektedir.")
+                    st.error(f"**Model Değerlendirmesi:** `{prediction}`", icon="🩺")
                 else:
+                    st.success(f"**Model Değerlendirmesi:** `{prediction}`", icon="🩺")
+
+                st.metric(label="Modelin Güven Skoru", value=f"{confidence_score * 100:.2f}%")
+                st.progress(confidence_score)
+
+                with st.expander("Sonuç Detayları"):
                     st.write(
-                        "Bu, görüntüde Parkinson hastalığı ile ilişkilendirilen belirgin sinirsel desenlerin tespit edilmediği anlamına gelmektedir.")
+                        f"Model, yüklenen görüntüyü analiz ederek "
+                        f"**%{confidence_score * 100:.2f}** olasılıkla görüntünün **'{prediction}'** "
+                        f"sınıfına ait olduğunu tahmin etmiştir. "
+                    )
+                    if prediction == 'Parkinson (PD)':
+                        st.write(
+                            "Bu, görüntüde Parkinson hastalığı ile ilişkilendirilebilen karakteristik özelliklerin tespit edildiği anlamına gelmektedir.")
+                    else:
+                        st.write(
+                            "Bu, görüntüde Parkinson hastalığı ile ilişkilendirilebilen belirgin karakteristik özelliklerin tespit edilmediği anlamına gelmektedir.")
+
+                st.markdown('</div>', unsafe_allow_html=True)
 
 # Yasal Uyarı Bölümü
 st.divider()
