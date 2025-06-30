@@ -30,7 +30,7 @@ def transform_image(image_bytes):
     return image_transform(image).unsqueeze(0)
 
 
-# --- YENİ: Google Drive'dan Dosya İndirme Fonksiyonu ---
+# --- Google Drive'dan Dosya İndirme Fonksiyonu ---
 def download_file_from_google_drive(id, destination):
     URL = "https://docs.google.com/uc?export=download&confirm=1"
     session = requests.Session()
@@ -41,9 +41,8 @@ def download_file_from_google_drive(id, destination):
         params = {'id': id, 'confirm': token}
         response = session.get(URL, params=params, stream=True)
 
-    # Dosya boyutunu al (ilerleme çubuğu için)
     total_size_in_bytes = int(response.headers.get('content-length', 0))
-    block_size = 1024  # 1 Kibibyte
+    block_size = 1024
 
     progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True, desc="Model İndiriliyor")
     with open(destination, 'wb') as f:
@@ -51,8 +50,6 @@ def download_file_from_google_drive(id, destination):
             progress_bar.update(len(data))
             f.write(data)
     progress_bar.close()
-    if total_size_in_bytes != 0 and progress_bar.n != total_size_in_bytes:
-        st.error("HATA, İndirme sırasında bir sorun oluştu.")
 
 
 def get_confirm_token(response):
@@ -67,19 +64,19 @@ def get_confirm_token(response):
 def load_model():
     model_path = 'parkinson_resnet18_finetuned_BEST.pth'
 
-    # --- ÖNEMLİ: Google Drive Dosya ID'nizi buraya yapıştırın ---
-    file_id = '11jw23F_ANuxWQosIGnSy5pqjozGZF7qA'
-    # -----------------------------------------------------------
+    # Google Drive Dosya ID'nizi buraya yapıştırın
+    file_id = '11jw23F_ANuxWQosIGnSy5pqjozGZF7qA'  # Örnek ID, kendi ID'nizle değiştirin
 
-    # Eğer model dosyası yerelde yoksa, Google Drive'dan indir
     if not os.path.exists(model_path):
-        with st.spinner(f"'{model_path}' indiriliyor... Bu işlem biraz zaman alabilir."):
+        with st.spinner(f"'{model_path}' indiriliyor..."):
             download_file_from_google_drive(file_id, model_path)
             st.success("Model başarıyla indirildi!")
 
     model = get_model_architecture()
     try:
-        model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+        # --- HATA İÇİN DÜZELTME BURADA ---
+        # weights_only=False parametresini ekliyoruz
+        model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu'), weights_only=False))
         model.eval()
         return model
     except Exception as e:
@@ -116,6 +113,7 @@ with st.sidebar:
     st.text("Abdullah [Soyadınız]")
 
 st.title("Derin Öğrenme ile Parkinson Hastalığı Tespiti")
+# ... (Arayüzün geri kalanı aynı)
 st.write(
     "Geliştirilen modeli test etmek için lütfen bir beyin MR görüntüsü yükleyin. "
     "Sistem, yüklediğiniz görüntüyü analiz ederek bir tahmin sunacaktır."
@@ -139,7 +137,6 @@ else:
         with col2:
             st.subheader("Analiz Sonucu")
             with st.spinner('Model görüntüyü analiz ediyor...'):
-                # ... (Tahmin kodu aynı)
                 image_bytes = uploaded_file.getvalue()
                 tensor = transform_image(image_bytes)
                 with torch.no_grad():
@@ -160,7 +157,8 @@ else:
             with st.expander("Sonuç Detayları"):
                 st.write(
                     f"Model, **%{confidence_score * 100:.2f}** olasılıkla görüntünün **'{prediction}'** sınıfına ait olduğunu tahmin etmiştir.")
-# ... Yasal Uyarı kısmı aynı ...
+
+# Yasal Uyarı
 st.divider()
 st.error(
     """
