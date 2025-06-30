@@ -135,7 +135,7 @@ st.markdown("""
     /* Genel Stiller */
     .stApp {
         font-family: 'Inter', sans-serif;
-        background-color: #f8f9fa;
+        background-color: #f0f2f6 !important;
         color: #333;
         line-height: 1.6;
     }
@@ -152,6 +152,8 @@ st.markdown("""
         border-radius: 8px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         padding: 2rem;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
     }
 
     /* Kenar Çubuğu */
@@ -161,6 +163,14 @@ st.markdown("""
 
     [data-testid="stSidebar"] * {
         color: #ffffff !important;
+    }
+
+    /* Sistem Hakkında Bilgi Kutusu */
+    [data-testid="stVerticalBlock"] > div:nth-child(2) > [data-testid="stVerticalBlock"] {
+        background-color: rgba(255,255,255,0.9) !important;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 0.5rem 0;
     }
 
     /* Metinler */
@@ -174,12 +184,14 @@ st.markdown("""
         background-color: #ffffff !important;
         border: 1px solid #e0e0e0 !important;
         color: #333 !important;
+        border-radius: 8px;
     }
 
     /* Butonlar */
     .stButton>button {
         background-color: #4a6fa5 !important;
         color: white !important;
+        border-radius: 8px;
     }
 
     /* Progress bar */
@@ -198,20 +210,21 @@ st.markdown("""
         color: #555 !important;
     }
 
-    /* Tablolar */
-    table {
-        color: #333 !important;
+    /* Hizalama Düzeltmeleri */
+    .stMarkdown {
+        padding: 0.25rem 0 !important;
     }
 
-    /* Uyarı Mesajları */
-    .stAlert {
-        border-left: 4px solid #4a6fa5 !important;
+    .stImage {
+        text-align: center;
     }
 
-    /* Form Elemanları */
-    .stTextInput, .stTextArea, .stSelectbox, .stFileUploader {
-        background-color: #ffffff !important;
-        border: 1px solid #ddd !important;
+    /* Sistem Hakkında Özel Stil */
+    div[data-testid="stVerticalBlock"] > div:nth-child(2) > div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] {
+        background-color: rgba(255,255,255,0.9) !important;
+        padding: 1rem !important;
+        border-radius: 8px !important;
+        margin: 0.5rem 0 !important;
     }
 </style>
 """, unsafe_allow_html=True)
