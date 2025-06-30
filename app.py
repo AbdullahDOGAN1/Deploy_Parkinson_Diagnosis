@@ -5,11 +5,13 @@ import torch
 import torch.nn as nn
 from torchvision import models, transforms
 import io
+import os
+import requests
+from tqdm import tqdm
 
 
-# --- Model ve Dönüşüm Fonksiyonları (Değişiklik Yok) ---
+# --- Model ve Dönüşüm Fonksiyonları ---
 
-# Model mimarisini tanımlama fonksiyonu
 @st.cache_resource
 def get_model_architecture():
     model = models.resnet18(weights=None)
@@ -18,7 +20,6 @@ def get_model_architecture():
     return model
 
 
-# Görüntü dönüşüm fonksiyonu
 def transform_image(image_bytes):
     image_transform = transforms.Compose([
         transforms.Resize((224, 224)),
@@ -29,32 +30,71 @@ def transform_image(image_bytes):
     return image_transform(image).unsqueeze(0)
 
 
-# Modeli yükleme fonksiyonu
+# --- YENİ: Google Drive'dan Dosya İndirme Fonksiyonu ---
+def download_file_from_google_drive(id, destination):
+    URL = "https://docs.google.com/uc?export=download&confirm=1"
+    session = requests.Session()
+    response = session.get(URL, params={'id': id}, stream=True)
+    token = get_confirm_token(response)
+
+    if token:
+        params = {'id': id, 'confirm': token}
+        response = session.get(URL, params=params, stream=True)
+
+    # Dosya boyutunu al (ilerleme çubuğu için)
+    total_size_in_bytes = int(response.headers.get('content-length', 0))
+    block_size = 1024  # 1 Kibibyte
+
+    progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True, desc="Model İndiriliyor")
+    with open(destination, 'wb') as f:
+        for data in response.iter_content(block_size):
+            progress_bar.update(len(data))
+            f.write(data)
+    progress_bar.close()
+    if total_size_in_bytes != 0 and progress_bar.n != total_size_in_bytes:
+        st.error("HATA, İndirme sırasında bir sorun oluştu.")
+
+
+def get_confirm_token(response):
+    for key, value in response.cookies.items():
+        if key.startswith('download_warning'):
+            return value
+    return None
+
+
+# --- Modeli Yükleme Fonksiyonu (GÜNCELLENDİ) ---
 @st.cache_resource
 def load_model():
-    # Model dosyasının adını ve yolunu kontrol edin
     model_path = 'parkinson_resnet18_finetuned_BEST.pth'
+
+    # --- ÖNEMLİ: Google Drive Dosya ID'nizi buraya yapıştırın ---
+    file_id = '11jw23F_ANuxWQosIGnSy5pqjozGZF7qA'
+    # -----------------------------------------------------------
+
+    # Eğer model dosyası yerelde yoksa, Google Drive'dan indir
+    if not os.path.exists(model_path):
+        with st.spinner(f"'{model_path}' indiriliyor... Bu işlem biraz zaman alabilir."):
+            download_file_from_google_drive(file_id, model_path)
+            st.success("Model başarıyla indirildi!")
+
     model = get_model_architecture()
     try:
-        # Modeli CPU üzerinde çalışacak şekilde yüklüyoruz
         model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
-        model.eval()  # Modeli değerlendirme moduna alıyoruz
+        model.eval()
         return model
-    except FileNotFoundError:
+    except Exception as e:
+        st.error(f"Model yüklenirken bir hata oluştu: {e}")
         return None
 
 
-# --- Profesyonel Streamlit Arayüzü ---
-
-# Sayfa yapılandırması
+# --- Streamlit Arayüzü (Değişiklik Yok) ---
 st.set_page_config(
     page_title="MR Görüntüsü Analiz Sistemi",
-    page_icon="⚕️",  # Daha profesyonel bir medikal ikon
+    page_icon="⚕️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# --- Kenar Çubuğu (Sidebar) ---
 with st.sidebar:
     st.title("MR Görüntüsü Analiz Sistemi")
     st.write("---")
@@ -63,23 +103,18 @@ with st.sidebar:
         "Bu uygulama, 2D beyin MR görüntülerinden Parkinson hastalığını teşhis etmek amacıyla "
         "geliştirilmiş bir derin öğrenme modelinin canlı demosudur."
     )
-
     st.subheader("Model Detayları")
-    # Daha temiz bir görünüm için st.markdown kullanıldı
     st.markdown(
         """
         - **Mimari:** `ResNet18` (İnce Ayarlanmış)
         - **Eğitim Veri Seti:** NTUA Parkinson Dataset
-        - **Genelleme Testi:** Farklı kaynaklardan gelen veri setleri ile test edilmiştir.
         - **Test Başarısı:** **~%95** Genel Doğruluk
         """
     )
-
     st.write("---")
     st.subheader("Geliştirici")
     st.text("Abdullah [Soyadınız]")
 
-# --- Ana Sayfa İçeriği ---
 st.title("Derin Öğrenme ile Parkinson Hastalığı Tespiti")
 st.write(
     "Geliştirilen modeli test etmek için lütfen bir beyin MR görüntüsü yükleyin. "
@@ -87,40 +122,30 @@ st.write(
 )
 st.write("---")
 
-# Model yükleme ve kontrol
 model = load_model()
 
 if model is None:
-    st.error("Hata: `parkinson_resnet18_finetuned_BEST.pth` model dosyası bulunamadı!")
-    st.warning("Lütfen eğitilmiş model dosyasının, `app.py` dosyası ile aynı klasörde olduğundan emin olun.")
+    st.error("Hata: Model yüklenemedi!")
 else:
-    # Dosya yükleme alanı
     uploaded_file = st.file_uploader(
         "Analiz için bir MR görüntüsü seçin",
         type=["jpg", "png", "jpeg"]
     )
-
-    if uploaded_file is None:
-        st.info("Lütfen bir MR görüntüsü yükleyerek analizi başlatın.")
-    else:
-        col1, col2 = st.columns([2, 3])  # Sütun oranları ayarlandı
-
+    if uploaded_file:
+        col1, col2 = st.columns([2, 3])
         with col1:
             st.subheader("Yüklenen Görüntü")
             st.image(uploaded_file, caption='Analiz edilecek MR görüntüsü', use_column_width=True)
-
         with col2:
             st.subheader("Analiz Sonucu")
             with st.spinner('Model görüntüyü analiz ediyor...'):
+                # ... (Tahmin kodu aynı)
                 image_bytes = uploaded_file.getvalue()
                 tensor = transform_image(image_bytes)
-
                 with torch.no_grad():
                     outputs = model(tensor)
                     probabilities = torch.nn.functional.softmax(outputs, dim=1)
                     confidence, predicted_class = torch.max(probabilities, 1)
-
-            # Sonuçları gösterme
             class_names = ['Sağlıklı (Non-PD)', 'Parkinson (PD)']
             prediction = class_names[predicted_class.item()]
             confidence_score = confidence.item()
@@ -132,21 +157,10 @@ else:
 
             st.metric(label="Modelin Güven Skoru", value=f"{confidence_score * 100:.2f}%")
             st.progress(confidence_score)
-
             with st.expander("Sonuç Detayları"):
                 st.write(
-                    f"Model, yüklenen görüntüyü analiz ederek "
-                    f"**%{confidence_score * 100:.2f}** olasılıkla **'{prediction}'** "
-                    f"sınıfına ait olduğunu tahmin etmiştir. "
-                )
-                if prediction == 'Parkinson (PD)':
-                    st.write(
-                        "Bu, görüntüde Parkinson hastalığı ile ilişkilendirilen desenlerin tespit edildiği anlamına gelmektedir.")
-                else:
-                    st.write(
-                        "Bu, görüntüde Parkinson hastalığı ile ilişkilendirilen belirgin desenlerin tespit edilmediği anlamına gelmektedir.")
-
-# Yasal Uyarı Bölümü
+                    f"Model, **%{confidence_score * 100:.2f}** olasılıkla görüntünün **'{prediction}'** sınıfına ait olduğunu tahmin etmiştir.")
+# ... Yasal Uyarı kısmı aynı ...
 st.divider()
 st.error(
     """
@@ -157,4 +171,3 @@ st.error(
     lütfen yetkili bir sağlık profesyoneline (doktor) danışınız.
     """
 )
-
