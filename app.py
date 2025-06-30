@@ -166,7 +166,7 @@ st.markdown("""
         font-size: 2.5rem;
         margin-bottom: 1rem;
         text-align: center;
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        background: linear-gradient(135deg, #273988, #424d93)
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -229,6 +229,17 @@ st.markdown("""
         transform: translateY(-2px);
         box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
     }
+    .st-emotion-cache-1q82h82 {
+    overflow-wrap: normal;
+    text-overflow: ellipsis;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    font-family: "Source Sans", sans-serif;
+    line-height: normal;
+    vertical-align: middle;
+    color: black;
+}
 
     /* Progress bar */
     .stProgress .st-bo {
@@ -315,7 +326,7 @@ st.markdown(
         <h3 style='color: #34495e; font-weight: 400; margin-top: -1rem;'>
             Yapay Zeka Destekli Parkinson Hastalığı Erken Teşhis Sistemi
         </h3>
-        <p style='font-size: 1.1rem; color: #7f8c8d; max-width: 800px; margin: 0 auto; line-height: 1.6;'>
+        <p style='font-size: 1.1rem; color: #424d93; max-width: 800px; margin: 0 auto; line-height: 1.6;'>
             İleri derin öğrenme algoritmaları kullanarak beyin MR görüntülerinden 
             Parkinson hastalığının nörolojik belirtilerini tespit eden klinik karar destek sistemi
         </p>
